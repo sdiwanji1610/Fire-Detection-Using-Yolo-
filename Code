@@ -1,0 +1,41 @@
+import cv2
+import math
+from ultralytics import YOLO
+
+# Load the YOLO model
+model = YOLO('/content/drive/MyDrive/best (1).pt')
+
+# Load the uploaded image
+image_path = '/content/Datacluster-Fire-and-Smoke-Sample--11-_jpg.rf.52b51dc1a0c390359afd0e5522faa7e1.jpg'  # Replace with the name of your uploaded photo
+frame = cv2.imread(image_path)
+
+# Reading the classes
+classnames = ['fire']
+
+result = model(frame)
+
+# Getting bbox, confidence, and class names information to work with
+for info in result:
+    boxes = info.boxes
+    for box in boxes:
+        confidence = box.conf[0]
+        confidence = math.ceil(confidence * 100)
+        Class = int(box.cls[0])
+        if confidence > 50:
+            x1, y1, x2, y2 = box.xyxy[0]
+            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 5)
+            text = f'{classnames[Class]} {confidence}%'
+            cv2.putText(frame, text, (x1 + 8, y1 + 100), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2)
+
+# # Display the result
+# cv2.imshow('image', frame)
+# cv2.waitKey(0)  # Wait for a key press to close the image window
+
+from matplotlib import pyplot as plt
+import cv2
+
+# Assuming 'frame' is your image
+plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+plt.axis('off')  # Turn off axis labels
+plt.show()
